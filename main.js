@@ -279,9 +279,9 @@ function showFinishScreen() {
   const bestIdx = raceState.lapTimes.indexOf(getBestLap());
   raceState.lapTimes.forEach((time, i) => {
     const div = document.createElement('div');
-    div.className = 'result-line';
-    const star = i === bestIdx ? ' ⭐' : '';
-    div.innerHTML = `<span>Volta ${i + 1}:${star}</span><strong>${formatTime(time)}</strong>`;
+    div.className = 'finish-row finish-row--lap' + (i === bestIdx ? ' is-best' : '');
+    const star = i === bestIdx ? '<span class="lap-star">★</span>' : '';
+    div.innerHTML = `<span>${star}Volta ${i + 1}</span><strong>${formatTime(time)}</strong>`;
     lapsDiv.appendChild(div);
   });
 
@@ -291,10 +291,19 @@ function showFinishScreen() {
   setTimeout(() => document.getElementById('player-name').focus(), 100);
 }
 
-function saveScore() {
+async function saveScore() {
   const name = document.getElementById('player-name').value.trim() || 'PILOTO';
   const totalTime = getTotalTime();
-  const position = saveToRanking(name, totalTime, raceState.lapTimes);
+
+  const btn = document.getElementById('btn-save-score');
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = 'SALVANDO...';
+
+  const position = await saveToRanking(name, totalTime, raceState.lapTimes);
+
+  btn.disabled = false;
+  btn.textContent = originalLabel;
 
   document.getElementById('finish-name-section').style.display = 'none';
   const posDiv = document.getElementById('finish-position');
@@ -307,18 +316,23 @@ function saveScore() {
   }
 }
 
-function showRanking() {
+async function showRanking() {
   document.getElementById('screen-start').classList.add('hidden');
   document.getElementById('screen-ranking').classList.remove('hidden');
   const tbody = document.getElementById('ranking-body');
-  const ranking = getRanking();
+
+  tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#888;">Carregando...</td></tr>';
+
+  const ranking = await getRanking();
+
   tbody.innerHTML = '';
   if (ranking.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#666;">Nenhum tempo registrado ainda</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#666;">Nenhum tempo registrado ainda</td></tr>';
   } else {
     ranking.forEach((entry, i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${i + 1}</td><td>${entry.name}</td><td>${formatTime(entry.totalTime)}</td><td>${formatTime(entry.bestLap)}</td>`;
+      const localBadge = entry._local ? ' <span style="color:#888;font-size:11px;">(local)</span>' : '';
+      tr.innerHTML = `<td>${i + 1}º ${entry.name}${localBadge}</td><td>${formatTime(entry.totalTime)}</td><td>${formatTime(entry.bestLap)}</td>`;
       tbody.appendChild(tr);
     });
   }
@@ -327,11 +341,30 @@ function showRanking() {
 function setupMenuButtons() {
   document.getElementById('btn-play').addEventListener('click', startGame);
   document.getElementById('btn-show-ranking').addEventListener('click', showRanking);
-  document.getElementById('btn-close-ranking').addEventListener('click', showStartScreen);
+  document.getElementById('btn-close-ranking').addEventListener('click', startGame);
+  document.getElementById('btn-share-ranking')?.addEventListener('click', () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: 'Avoa Racing', url }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+    }
+  });
   document.getElementById('btn-save-score').addEventListener('click', saveScore);
   document.getElementById('btn-back-to-menu').addEventListener('click', showStartScreen);
   document.getElementById('player-name').addEventListener('keydown', (e) => {
     if (e.code === 'Enter') saveScore();
+  });
+
+  // Atalho de debug: tecla "1" durante a corrida pula direto pra tela final
+  // com 3 voltas fictícias, pra testar o fluxo de ranking.
+  window.addEventListener('keydown', (e) => {
+    if (e.code !== 'Digit1' && e.code !== 'Numpad1') return;
+    if (raceState.status !== 'racing') return;
+    if (document.activeElement?.tagName === 'INPUT') return;
+    raceState.lapTimes = [70333, 70333, 70333];
+    raceState.status = 'finished';
+    showFinishScreen();
   });
 }
 

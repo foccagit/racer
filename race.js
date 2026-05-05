@@ -1,4 +1,6 @@
-const STORAGE_KEY = 'interlagos_ranking_v1';
+import { fetchRanking, submitToRanking } from './supabase.js';
+
+const STORAGE_KEY = 'interlagos_ranking_cache';
 const TOTAL_LAPS = 3;
 
 export const raceState = {
@@ -33,27 +35,48 @@ export function getBestLap() {
   return Math.min(...raceState.lapTimes);
 }
 
-export function getRanking() {
+function getRankingFromCache() {
   const data = localStorage.getItem(STORAGE_KEY);
   if (!data) return [];
   try { return JSON.parse(data); } catch { return []; }
 }
 
-export function saveToRanking(name, totalTimeMs, lapTimes) {
-  const ranking = getRanking();
+export async function getRanking() {
+  const remote = await fetchRanking(10);
+  if (remote.length > 0) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(remote));
+    return remote;
+  }
+  return getRankingFromCache();
+}
+
+export async function saveToRanking(name, totalTimeMs, lapTimes) {
+  const result = await submitToRanking(name, totalTimeMs, lapTimes);
+
+  if (result.success) {
+    const newRanking = await fetchRanking(10);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newRanking));
+    return result.position;
+  }
+
+  // Fallback: salva localmente se Supabase tiver fora
+  const cached = getRankingFromCache();
   const cleanName = (name || 'PILOTO').substring(0, 12).toUpperCase();
-  const entry = {
+  cached.push({
     name: cleanName,
     totalTime: totalTimeMs,
-    lapTimes: [...lapTimes],
     bestLap: Math.min(...lapTimes),
+    lapTimes: [...lapTimes],
     date: new Date().toISOString(),
-  };
-  ranking.push(entry);
-  ranking.sort((a, b) => a.totalTime - b.totalTime);
-  const top10 = ranking.slice(0, 10);
+    _local: true,
+  });
+  cached.sort((a, b) => a.totalTime - b.totalTime);
+  const top10 = cached.slice(0, 10);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(top10));
-  const position = top10.findIndex(e => e.name === cleanName && e.totalTime === totalTimeMs);
+
+  const position = top10.findIndex(e =>
+    e.name === cleanName && e.totalTime === totalTimeMs
+  );
   return position >= 0 ? position + 1 : null;
 }
 

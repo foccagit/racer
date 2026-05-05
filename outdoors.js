@@ -1,21 +1,18 @@
 import * as THREE from 'three';
 
-// Configuração dos 5 outdoors
+// Outdoors em formato de ponte sobre a pista: largada, reta oposta e pinheirinho
 const OUTDOORS = [
-  { t: 0.10, side: 'right', offset: 18, label: 'ANUNCIE AQUI' },
-  { t: 0.30, side: 'left',  offset: 22, label: 'ANUNCIE AQUI' },
-  { t: 0.50, side: 'right', offset: 18, label: 'ANUNCIE AQUI' },
-  { t: 0.75, side: 'left',  offset: 18, label: 'ANUNCIE AQUI' },
-  { t: 0.92, side: 'right', offset: 20, label: 'ANUNCIE AQUI' },
+  { t: 0.02, label: 'ANUNCIE AQUI' }, // largada
+  { t: 0.25, label: 'ANUNCIE AQUI' }, // reta oposta
+  { t: 0.52, label: 'ANUNCIE AQUI' }, // pinheirinho
 ];
 
-const TOWER_TOTAL_HEIGHT = 8;
-const SIGN_WIDTH         = 6;
-const SIGN_HEIGHT        = 3;
-const SIGN_BOTTOM        = 4.5;
-const POLE_WIDTH         = 0.25;
-const POLE_COUNT         = 2;
-const POLE_SPACING       = 4;
+const GANTRY_SPAN        = 18;   // distância entre os dois pilares (pista = 13m + folga)
+const POLE_HEIGHT        = 9;
+const POLE_WIDTH         = 0.4;
+const SIGN_WIDTH         = 14;
+const SIGN_HEIGHT        = 2.4;
+const SIGN_BOTTOM        = 6.2;  // altura inferior da placa (acima do carro)
 
 const SIGN_BG_COLOR    = 0xcc0000;
 const SIGN_TEXT_COLOR  = '#000000';
@@ -54,18 +51,25 @@ function createSingleOutdoor(label, sharedSignTexture) {
     roughness: 0.7,
     metalness: 0.3,
   });
-  const poleGeom = new THREE.BoxGeometry(POLE_WIDTH, TOWER_TOTAL_HEIGHT, POLE_WIDTH);
 
-  for (let i = 0; i < POLE_COUNT; i++) {
+  // Dois pilares — um de cada lado da pista (eixo X local = transversal à pista)
+  const poleGeom = new THREE.BoxGeometry(POLE_WIDTH, POLE_HEIGHT, POLE_WIDTH);
+  const half = GANTRY_SPAN / 2;
+  for (const xOffset of [-half, half]) {
     const pole = new THREE.Mesh(poleGeom, poleMat);
-    const xOffset = (i - (POLE_COUNT - 1) / 2) * POLE_SPACING;
-    pole.position.set(xOffset, TOWER_TOTAL_HEIGHT / 2, 0);
+    pole.position.set(xOffset, POLE_HEIGHT / 2, 0);
     pole.castShadow = true;
     pole.receiveShadow = true;
     group.add(pole);
   }
 
-  // Reusa textura compartilhada (todas as placas têm o mesmo texto)
+  // Travessa horizontal ligando os pilares no topo
+  const beamGeom = new THREE.BoxGeometry(GANTRY_SPAN, POLE_WIDTH, POLE_WIDTH);
+  const beam = new THREE.Mesh(beamGeom, poleMat);
+  beam.position.set(0, POLE_HEIGHT - POLE_WIDTH / 2, 0);
+  beam.castShadow = true;
+  group.add(beam);
+
   const signTexture = sharedSignTexture || createSignTexture(label);
 
   const signMatFront = new THREE.MeshStandardMaterial({
@@ -77,15 +81,16 @@ function createSingleOutdoor(label, sharedSignTexture) {
     roughness: 0.85,
   });
 
-  // BoxGeometry: ordem das faces +X, -X, +Y, -Y, +Z, -Z. +Z é a frente.
-  const signGeom = new THREE.BoxGeometry(SIGN_WIDTH, SIGN_HEIGHT, 0.15);
+  // Placa atravessada sobre a pista: largura no eixo X (entre pilares), espessura em Z
+  const signGeom = new THREE.BoxGeometry(SIGN_WIDTH, SIGN_HEIGHT, 0.2);
+  // Faces: +X, -X, +Y, -Y, +Z, -Z. Frente e verso da placa = +Z e -Z.
   const sign = new THREE.Mesh(signGeom, [
     signMatBack,
     signMatBack,
     signMatBack,
     signMatBack,
-    signMatFront,  // +Z = frente
-    signMatBack,
+    signMatFront, // +Z = frente (lado de quem chega)
+    signMatFront, // -Z = verso (também com texto, vista reversa)
   ]);
   sign.position.set(0, SIGN_BOTTOM + SIGN_HEIGHT / 2, 0);
   sign.castShadow = true;
@@ -108,16 +113,13 @@ export function createOutdoors(scene, centerCurve) {
     const centerPos = centerCurve.getPointAt(config.t);
     const tangent = centerCurve.getTangentAt(config.t);
 
-    const up = new THREE.Vector3(0, 1, 0);
-    const left = new THREE.Vector3().crossVectors(up, tangent).normalize();
-    const lateral = config.side === 'left' ? left : left.clone().negate();
+    // Posiciona o pórtico centrado sobre a pista
+    outdoor.position.copy(centerPos);
 
-    const finalPos = centerPos.clone().addScaledVector(lateral, config.offset);
-    finalPos.y = centerPos.y;
-    outdoor.position.copy(finalPos);
-
-    // Placa apontando pra pista — +Z local deve casar com -lateral mundial
-    const facingDir = lateral.clone().negate();
+    // Eixo Z local da pórtico = direção da pista (tangente).
+    // Como a placa nasce com largura em X e frente em +Z, queremos que +Z
+    // aponte na direção em que o carro chega (oposto à tangente).
+    const facingDir = tangent.clone().negate();
     outdoor.rotation.y = Math.atan2(facingDir.x, facingDir.z);
 
     group.add(outdoor);

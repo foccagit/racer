@@ -4,12 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>avoa | racing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap" />
 <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <div id="app"></div>
   <button id="reset-view-btn" style="display:none">Resetar visão</button>
-  <div id="fps" style="position:fixed; top:20px; left:140px; background:rgba(0,0,0,0.6); color:#0f0; padding:4px 8px; font-family:monospace; font-size:12px; pointer-events:none;">FPS: --</div>
+  <div id="fps">FPS: --</div>
   <canvas id="minimap" width="300" height="195"></canvas>
   <div id="lap-timer">
     <div id="past-laps"></div>
@@ -18,13 +21,12 @@
   <div id="wrong-way-msg">SENTIDO ERRADO</div>
 
   <!-- Tela de início -->
-  <div id="screen-start" class="game-screen">
+  <div id="screen-start" class="game-screen start-screen">
     <div class="screen-content">
-      <h1>🏁 INTERLAGOS</h1>
-      <p class="subtitle">Bem-vindo ao Autódromo José Carlos Pace</p>
-      <p class="info">3 voltas · sentido anti-horário</p>
-      <button id="btn-play" class="btn-primary">JOGAR</button>
-      <button id="btn-show-ranking" class="btn-secondary">RANKING</button>
+      <h1>AVOA RACING</h1>
+      <p class="subtitle">Utilize as teclas direcionais<br>do seu teclado para jogar</p>
+      <button id="btn-play" class="btn-outline">JOGAR</button>
+      <button id="btn-show-ranking" class="btn-link">RANKING</button>
     </div>
   </div>
 
@@ -35,39 +37,41 @@
   </div>
 
   <!-- Tela de fim -->
-  <div id="screen-finish" class="game-screen hidden">
-    <div class="screen-content">
-      <h1>🏆 CORRIDA CONCLUÍDA</h1>
-      <div class="results">
+  <div id="screen-finish" class="game-screen finish-screen hidden">
+    <div class="finish-card">
+      <h1>Corrida concluída</h1>
+      <div class="finish-rows">
         <div id="finish-laps"></div>
-        <div class="result-line big">
-          <span>Tempo total:</span>
+        <div class="finish-row finish-row--total">
+          <span>Tempo total</span>
           <strong id="finish-total">00:00.00</strong>
         </div>
-        <div class="result-line big highlight">
-          <span>Melhor volta:</span>
+        <div class="finish-row finish-row--best">
+          <span>Melhor volta</span>
           <strong id="finish-best-lap">00:00.00</strong>
         </div>
       </div>
-      <div id="finish-name-section">
-        <p>Digite seu nome:</p>
-        <input type="text" id="player-name" maxlength="12" placeholder="PILOTO" autocomplete="off">
-        <button id="btn-save-score" class="btn-primary">SALVAR</button>
+      <div id="finish-name-section" class="finish-name">
+        <input type="text" id="player-name" maxlength="12" placeholder="SEU NOME" autocomplete="off">
+        <button id="btn-save-score" class="finish-save">SALVAR</button>
       </div>
       <div id="finish-position" class="hidden"></div>
-      <button id="btn-back-to-menu" class="btn-secondary">VOLTAR AO MENU</button>
+      <button id="btn-back-to-menu" class="finish-back">VOLTAR O MENU</button>
     </div>
   </div>
 
   <!-- Tela de ranking -->
-  <div id="screen-ranking" class="game-screen hidden">
-    <div class="screen-content">
-      <h1>🏆 RANKING</h1>
+  <div id="screen-ranking" class="game-screen ranking-screen hidden">
+    <div class="ranking-content">
+      <h1>Ranking</h1>
       <table id="ranking-table">
-        <thead><tr><th>#</th><th>PILOTO</th><th>TEMPO</th><th>MELHOR</th></tr></thead>
+        <thead><tr><th>Piloto</th><th>Tempo</th><th>Melhor volta</th></tr></thead>
         <tbody id="ranking-body"></tbody>
       </table>
-      <button id="btn-close-ranking" class="btn-secondary">VOLTAR</button>
+      <div class="ranking-actions">
+        <button id="btn-close-ranking" class="btn-solid">JOGAR</button>
+        <button id="btn-share-ranking" class="btn-outline">COMPARTILHAR</button>
+      </div>
     </div>
   </div>
 
