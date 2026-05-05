@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Node (caso futuramente seja adicionado)
+node_modules/
+package-lock.json
+
+# Build / cache
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# Pack do Kenney (apenas race.glb em models/ é usado em runtime)
+kenney_car-kit/

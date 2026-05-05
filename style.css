@@ -1,0 +1,208 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #222;
+}
+#app { position: fixed; inset: 0; }
+#mode-indicator {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  user-select: none;
+  pointer-events: none;
+}
+#lap-timer {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Courier New', Menlo, monospace;
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+  pointer-events: none;
+}
+#past-laps { display: flex; flex-direction: column; }
+#past-laps .row { opacity: 0.6; line-height: 1.15; }
+#active-lap { opacity: 1; line-height: 1.15; }
+
+.game-screen {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+}
+.game-screen.hidden { display: none; }
+.screen-content {
+  background: #1a1a1a;
+  border: 2px solid #444;
+  border-radius: 12px;
+  padding: 40px 50px;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+}
+.screen-content h1 {
+  font-size: 36px;
+  margin: 0 0 10px;
+  letter-spacing: 2px;
+}
+.screen-content .subtitle { color: #aaa; font-size: 16px; margin: 0 0 6px; }
+.screen-content .info { color: #888; font-size: 13px; margin: 0 0 30px; font-family: monospace; }
+.btn-primary, .btn-secondary {
+  display: block;
+  width: 100%;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.2s;
+}
+.btn-primary { background: #1d28fd; color: #fff; }
+.btn-primary:hover { background: #3845ff; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-secondary { background: #333; color: #fff; }
+.btn-secondary:hover { background: #444; }
+
+#hud-lap-counter {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
+  padding: 12px 24px;
+  border-radius: 12px;
+  color: #fff;
+  font-family: monospace;
+  text-align: center;
+  z-index: 50;
+}
+#hud-lap-counter.hidden { display: none; }
+#hud-lap-counter .hud-label { font-size: 11px; color: #888; letter-spacing: 1px; display: block; }
+#hud-lap-counter .hud-value { font-size: 24px; font-weight: bold; }
+
+.results { margin: 20px 0; text-align: left; }
+.result-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #333;
+  font-family: monospace;
+  font-size: 16px;
+}
+.result-line.big { font-size: 20px; margin-top: 8px; border-bottom: none; }
+.result-line.highlight strong { color: #ffeb3b; }
+
+#player-name {
+  width: 100%;
+  padding: 12px;
+  margin: 12px 0;
+  background: #000;
+  border: 2px solid #444;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 22px;
+  text-align: center;
+  text-transform: uppercase;
+  font-family: monospace;
+  letter-spacing: 4px;
+  box-sizing: border-box;
+}
+#player-name:focus { outline: none; border-color: #1d28fd; }
+
+#finish-position {
+  background: rgba(29,40,253,0.2);
+  border: 2px solid #1d28fd;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 20px 0;
+  font-size: 18px;
+}
+#finish-position.hidden { display: none; }
+
+#ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-family: monospace;
+  font-size: 13px;
+}
+#ranking-table th, #ranking-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #333;
+}
+#ranking-table th { color: #888; font-size: 11px; letter-spacing: 1px; }
+#ranking-table td:first-child { color: #ffeb3b; font-weight: bold; width: 30px; }
+#ranking-table td:nth-child(3) { text-align: right; color: #1d28fd; font-weight: bold; }
+#ranking-table td:nth-child(4) { text-align: right; color: #ffeb3b; }
+#ranking-table tr:nth-child(1) td:first-child { color: gold; }
+#ranking-table tr:nth-child(2) td:first-child { color: silver; }
+#ranking-table tr:nth-child(3) td:first-child { color: #cd7f32; }
+#wrong-way-msg {
+  position: fixed;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Courier New', Menlo, monospace;
+  font-size: 56px;
+  font-weight: bold;
+  color: #ff2a2a;
+  text-shadow: 0 0 12px rgba(0,0,0,0.85);
+  letter-spacing: 3px;
+  user-select: none;
+  pointer-events: none;
+  display: none;
+  animation: blink 0.6s steps(2) infinite;
+}
+#wrong-way-msg.show { display: block; }
+@keyframes blink { 50% { opacity: 0; } }
+#reset-view-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  padding: 8px 14px;
+  background: #1D28FD;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+#reset-view-btn:hover { background: #0f1ad4; }
+#minimap {
+  position: fixed;
+  bottom: 16px;
+  right: -24px;
+  width: 300px;
+  height: 195px;
+  background: transparent;
+  pointer-events: none;
+}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>avoa | racing</title>
+<link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="app"></div>
+  <button id="reset-view-btn" style="display:none">Resetar visão</button>
+  <div id="fps" style="position:fixed; top:20px; left:140px; background:rgba(0,0,0,0.6); color:#0f0; padding:4px 8px; font-family:monospace; font-size:12px; pointer-events:none;">FPS: --</div>
+  <canvas id="minimap" width="300" height="195"></canvas>
+  <div id="lap-timer">
+    <div id="past-laps"></div>
+    <div id="active-lap">00:00:000</div>
+  </div>
+  <div id="wrong-way-msg">SENTIDO ERRADO</div>
+
+  <!-- Tela de início -->
+  <div id="screen-start" class="game-screen">
+    <div class="screen-content">
+      <h1>🏁 INTERLAGOS</h1>
+      <p class="subtitle">Bem-vindo ao Autódromo José Carlos Pace</p>
+      <p class="info">3 voltas · sentido anti-horário</p>
+      <button id="btn-play" class="btn-primary">JOGAR</button>
+      <button id="btn-show-ranking" class="btn-secondary">RANKING</button>
+    </div>
+  </div>
+
+  <!-- HUD de volta atual (visível durante corrida) -->
+  <div id="hud-lap-counter" class="hidden">
+    <span class="hud-label">VOLTA</span>
+    <span class="hud-value"><span id="hud-lap-num">1</span>/3</span>
+  </div>
+
+  <!-- Tela de fim -->
+  <div id="screen-finish" class="game-screen hidden">
+    <div class="screen-content">
+      <h1>🏆 CORRIDA CONCLUÍDA</h1>
+      <div class="results">
+        <div id="finish-laps"></div>
+        <div class="result-line big">
+          <span>Tempo total:</span>
+          <strong id="finish-total">00:00.00</strong>
+        </div>
+        <div class="result-line big highlight">
+          <span>Melhor volta:</span>
+          <strong id="finish-best-lap">00:00.00</strong>
+        </div>
+      </div>
+      <div id="finish-name-section">
+        <p>Digite seu nome:</p>
+        <input type="text" id="player-name" maxlength="12" placeholder="PILOTO" autocomplete="off">
+        <button id="btn-save-score" class="btn-primary">SALVAR</button>
+      </div>
+      <div id="finish-position" class="hidden"></div>
+      <button id="btn-back-to-menu" class="btn-secondary">VOLTAR AO MENU</button>
+    </div>
+  </div>
+
+  <!-- Tela de ranking -->
+  <div id="screen-ranking" class="game-screen hidden">
+    <div class="screen-content">
+      <h1>🏆 RANKING</h1>
+      <table id="ranking-table">
+        <thead><tr><th>#</th><th>PILOTO</th><th>TEMPO</th><th>MELHOR</th></tr></thead>
+        <tbody id="ranking-body"></tbody>
+      </table>
+      <button id="btn-close-ranking" class="btn-secondary">VOLTAR</button>
+    </div>
+  </div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module" src="./main.js"></script>
+</body>
+</html>
