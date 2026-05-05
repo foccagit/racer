@@ -2,7 +2,27 @@
 
 Simulador de corrida 3D do **Autódromo José Carlos Pace (Interlagos)**, feito em Three.js puro, sem bundler. Roda direto no navegador via servidor estático.
 
-## ▶️ Como rodar
+🎮 **[Jogue agora →](https://foccagit.github.io/racer/)**
+
+![Three.js](https://img.shields.io/badge/Three.js-r161-black?logo=three.js)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES2022-yellow?logo=javascript)
+![License](https://img.shields.io/github/license/foccagit/racer)
+![Stars](https://img.shields.io/github/stars/foccagit/racer?style=social)
+
+## 🎮 Demo
+
+> **[▶️ Jogue diretamente no navegador](https://foccagit.github.io/racer/)**
+>
+> Sem instalação, sem cadastro. Use teclado WASD ou setas pra dirigir.
+
+### Screenshots
+
+> Adicione aqui screenshots do jogo. Sugestão de 3 imagens:
+> 1. Tela inicial (botão JOGAR)
+> 2. Carro descendo o Senna S em ação
+> 3. Tela de fim de corrida com ranking
+
+## ▶️ Como rodar localmente
 
 ```bash
 cd /caminho/do/projeto
@@ -44,6 +64,17 @@ Os 120 waypoints da pista foram extraídos amostrando uniformemente o path SVG v
 
 Perímetro: **4.309 km** (idêntico ao circuito real).
 
+## 🔧 Detalhes técnicos
+
+Alguns aspectos técnicos interessantes do projeto:
+
+- **Pista georreferenciada**: 120 waypoints extraídos do SVG vetorial oficial do circuito, com perímetro de exatos 4.309km
+- **Catmull-Rom centripetal**: a curva da pista usa interpolação centripetal (alpha=0.5) pra evitar overshoot em curvas apertadas como o Bico de Pato
+- **Raycasting de elevação**: o carro segue o relevo da pista em tempo real, com suavização interpolada pra evitar pop visual
+- **Sistema de setores anti-trapaça**: a corrida valida que o carro passou pelos 3 setores em ordem antes de contar uma volta válida
+- **Histerese de detecção**: a flag "fora da pista" tem debounce de 3 frames pra eliminar flicker em transições de borda
+- **Single draw call no rastro**: o trail visual usa LineSegments com BufferGeometry pré-alocado, mantendo performance mesmo com 200 segmentos visíveis
+
 ## 🧱 Stack
 
 - [Three.js](https://threejs.org/) 0.161 via importmap (CDN)
@@ -74,6 +105,18 @@ Perímetro: **4.309 km** (idêntico ao circuito real).
 - [ ] Replay/ghost da melhor volta
 - [ ] Setores parciais com tempos
 - [ ] Versão mobile com controles touch
+
+## 🤝 Contribuindo
+
+Achou um bug? Tem ideia de feature? Pull requests são bem-vindos!
+
+1. Faça fork do projeto
+2. Crie uma branch: `git checkout -b feat/minha-feature`
+3. Commit suas mudanças: `git commit -m 'feat: adiciona X'`
+4. Push pra branch: `git push origin feat/minha-feature`
+5. Abra um Pull Request
+
+Pra reportar bugs ou sugerir features, abra uma [issue](https://github.com/foccagit/racer/issues).
 
 ## 📄 Licença
 
