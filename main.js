@@ -7,6 +7,11 @@ import {
 } from './race.js';
 import { initTrail, updateTrail, clearTrail } from './trail.js';
 import { createOutdoors } from './outdoors.js';
+import { isMobile, isLowEnd } from './mobile/device.js';
+import { setupOrientation, requestLandscapeLock } from './mobile/orientation.js';
+import { setupTouchControls } from './mobile/controls.js';
+import { tickHaptics } from './mobile/haptics.js';
+import { setupPWA } from './mobile/pwa.js';
 
 const _ray = new THREE.Raycaster();
 const _rayOrigin = new THREE.Vector3();
@@ -125,6 +130,20 @@ function init() {
   setupMenuButtons();
   showStartScreen();
   window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onResize);
+
+  // PWA: registra service worker e injeta UI de instalação na splash (mobile).
+  setupPWA();
+
+  // Mobile: overlay de orientação + dock touch (no-ops em desktop).
+  setupOrientation();
+  setupTouchControls(state, {
+    onCameraToggle: () => {
+      applyCameraView(state.cameraViewIdx + 1);
+      resetView();
+    },
+  });
+
   animate();
 }
 
@@ -358,7 +377,10 @@ async function showRanking() {
 }
 
 function setupMenuButtons() {
-  document.getElementById('btn-play').addEventListener('click', startGame);
+  document.getElementById('btn-play').addEventListener('click', () => {
+    requestLandscapeLock();
+    startGame();
+  });
   document.getElementById('btn-show-ranking').addEventListener('click', showRanking);
   document.getElementById('btn-close-ranking').addEventListener('click', startGame);
   document.getElementById('btn-share-ranking')?.addEventListener('click', () => {
@@ -420,8 +442,10 @@ function setupScene() {
 
   const dir = new THREE.DirectionalLight(0xffffff, 0.7);
   dir.position.set(200, 400, 100);
-  dir.castShadow = true;
-  dir.shadow.mapSize.set(2048, 2048);
+  // Em low-end desabilita sombras direcionais (caro). Mobile padrão mantém,
+  // mas com mapa menor pra economizar VRAM/fillrate.
+  dir.castShadow = !isLowEnd;
+  dir.shadow.mapSize.set(isMobile ? 1024 : 2048, isMobile ? 1024 : 2048);
   const d = 80;
   dir.shadow.camera.left = -d;
   dir.shadow.camera.right = d;
@@ -444,11 +468,13 @@ function setupScene() {
   state.ground = ground;
 
   // Renderer
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  // Em low-end desliga AA e limita pixelRatio agressivamente.
+  const renderer = new THREE.WebGLRenderer({ antialias: !isLowEnd });
+  const pixelCap = isLowEnd ? 1 : (isMobile ? 1.5 : 2);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, pixelCap));
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.enabled = !isLowEnd;
+  renderer.shadowMap.type = isMobile ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
   document.getElementById('app').appendChild(renderer.domElement);
 
   state.scene = scene;
@@ -857,6 +883,7 @@ function animate() {
   updateCamera(dt);
   updateMinimap();
   updateLapTimer();
+  tickHaptics(state);
 
   // FPS counter
   state.fpsAccum.frames++;
