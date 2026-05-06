@@ -2,7 +2,14 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Avoa" />
+<link rel="manifest" href="./manifest.json" />
+<meta name="theme-color" content="#000000" />
+<link rel="apple-touch-icon" href="./icons/icon-192.png" />
 <title>avoa | racing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,6 +27,24 @@
   </div>
   <div id="wrong-way-msg">SENTIDO ERRADO</div>
 
+  <!-- Controles touch (visíveis só em mobile via CSS) -->
+  <div id="touch-controls" aria-hidden="true">
+    <div class="touch-dock touch-dock--left">
+      <button class="touch-btn touch-btn--dir" data-touch-action="left" aria-label="Esquerda">◀</button>
+      <button class="touch-btn touch-btn--dir" data-touch-action="right" aria-label="Direita">▶</button>
+    </div>
+    <div class="touch-dock touch-dock--right">
+      <button class="touch-btn touch-btn--pedal" data-touch-action="up" aria-label="Acelerar">▲</button>
+      <button class="touch-btn touch-btn--pedal" data-touch-action="down" aria-label="Freio/Ré">▼</button>
+    </div>
+  </div>
+  <button id="touch-camera-btn" class="touch-btn touch-btn--camera" data-touch-action="camera" aria-label="Trocar câmera">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>
+  </button>
+
   <!-- Tela de início -->
   <div id="screen-start" class="game-screen start-screen">
     <div class="screen-content">
@@ -27,6 +52,7 @@
       <p class="subtitle">Acelere, freie e mude de direção com as setas do teclado.<br>Use a tecla 1 para alternar a câmera.</p>
       <button id="btn-play" class="btn-outline">JOGAR</button>
       <button id="btn-show-ranking" class="btn-link">RANKING</button>
+      <p class="mobile-hint">Para a melhor experiência, jogue com o celular na horizontal.</p>
     </div>
   </div>
 
