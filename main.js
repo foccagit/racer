@@ -50,6 +50,7 @@ const state = {
   camOffset3D: new THREE.Vector3(0, 6, 13),
   camLookAhead: new THREE.Vector3(0, 1, 0),
   orthoHeight: 80,
+  cameraViewIdx: 0,
   // controle de câmera por mouse
   userYaw: 0,
   userPitch: 0,
@@ -79,6 +80,24 @@ const state = {
   wrongWay: false,
   fpsAccum: { frames: 0, time: 0 },
 };
+
+const CAMERA_VIEWS = [
+  // 0: padrão
+  { offset: new THREE.Vector3(0, 6, 13),    look: new THREE.Vector3(0, 1, 0) },
+  // 1: alta, distante, deslocada 45º à direita
+  { offset: new THREE.Vector3(18, 12, 18),  look: new THREE.Vector3(0, 1, 0) },
+  // 2: mesma angulação da padrão, porém mais distante
+  { offset: new THREE.Vector3(0, 11, 24),   look: new THREE.Vector3(0, 1, 0) },
+  // 3: mesma angulação da padrão, porém mais perto e menos angulada (mais baixa)
+  { offset: new THREE.Vector3(0, 2.2, 5.5), look: new THREE.Vector3(0, 1.2, 0) },
+];
+
+function applyCameraView(idx) {
+  const v = CAMERA_VIEWS[idx % CAMERA_VIEWS.length];
+  state.camOffset3D.copy(v.offset);
+  state.camLookAhead.copy(v.look);
+  state.cameraViewIdx = idx % CAMERA_VIEWS.length;
+}
 
 const clock = new THREE.Clock();
 
@@ -356,15 +375,20 @@ function setupMenuButtons() {
     if (e.code === 'Enter') saveScore();
   });
 
-  // Atalho de debug: tecla "1" durante a corrida pula direto pra tela final
-  // com 3 voltas fictícias, pra testar o fluxo de ranking.
+  // Tecla 1: alterna entre as visões de câmera. Tecla 2: abre o ranking.
   window.addEventListener('keydown', (e) => {
-    if (e.code !== 'Digit1' && e.code !== 'Numpad1') return;
-    if (raceState.status !== 'racing') return;
     if (document.activeElement?.tagName === 'INPUT') return;
-    raceState.lapTimes = [70333, 70333, 70333];
-    raceState.status = 'finished';
-    showFinishScreen();
+    if (e.code === 'Digit1' || e.code === 'Numpad1') {
+      applyCameraView(state.cameraViewIdx + 1);
+      resetView();
+      e.preventDefault();
+    } else if (e.code === 'Digit2' || e.code === 'Numpad2') {
+      raceState.status = 'menu';
+      document.getElementById('hud-lap-counter').classList.add('hidden');
+      document.getElementById('screen-finish').classList.add('hidden');
+      showRanking();
+      e.preventDefault();
+    }
   });
 }
 
